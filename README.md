@@ -22,6 +22,7 @@ $clientSecret = '';
 $redirectUri = '';
 
 $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+$tb->useSandbox(true);
 header('Location: ' . $tb->getAuthorizationUrl());
 ```
 
@@ -36,6 +37,7 @@ $redirectUri = '';
 
 try {
     $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb->useSandbox(true);
     $tb->requestAccessToken($_GET['code']);
 } catch (TatraBankaApiException $e) {
     // ...
@@ -53,6 +55,7 @@ $redirectUri = '';
 
 try {
     $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb->useSandbox(true);
 
     if ($tb->isAuthorized()) {
         // The operation provides the relevant data about bank customer's accounts in form of a list.
