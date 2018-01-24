@@ -5,6 +5,8 @@
 
 PHP REST API Client for [Tatra Banka](https://www.tatrabanka.sk/)'s [Open Banking TB](https://www.tatrabanka.sk/sk/personal/ucet-platby/elektronicke-bankovnictvo/openbankingtb.html).
 
+Sign up at [developer.tatrabanka.sk](https://developer.tatrabanka.sk) to get access to the API.
+
 ## Installation
 
 Use composer to install this package.
@@ -20,6 +22,7 @@ $clientSecret = '';
 $redirectUri = '';
 
 $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+$tb->useSandbox(true);
 header('Location: ' . $tb->getAuthorizationUrl());
 ```
 
@@ -34,6 +37,7 @@ $redirectUri = '';
 
 try {
     $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb->useSandbox(true);
     $tb->requestAccessToken($_GET['code']);
 } catch (TatraBankaApiException $e) {
     // ...
@@ -51,6 +55,7 @@ $redirectUri = '';
 
 try {
     $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb->useSandbox(true);
 
     if ($tb->isAuthorized()) {
         // The operation provides the relevant data about bank customer's accounts in form of a list.
