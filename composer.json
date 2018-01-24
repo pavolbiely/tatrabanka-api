@@ -1,0 +1,22 @@
+{
+  "name": "pavolbiely/tatrabanka-api",
+  "description": "Tatra Banka - Open banking TB - REST API Client",
+  "version": "1.0.0",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Pavol Biely",
+      "email": "pavolbiely@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "nette/tester": "2.0.x"
+  },
+  "autoload": {
+    "psr-4": {
+      "TatraBankaApi\\": "src"
+    }
+  }
+}

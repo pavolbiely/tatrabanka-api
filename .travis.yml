@@ -1,0 +1,23 @@
+language: php
+php:
+    - 7.1
+
+env:
+matrix:
+    include:
+        - php: 7.1
+          env: coverage=on
+
+script:
+    - vendor/bin/tester tests -s -c tests/php.ini-unix $coverageArgs
+
+before_script:
+    - travis_retry composer update --no-interaction --prefer-dist --prefer-lowest --prefer-stable
+    - if [ "$coverage" == "on" ]; then coverageArgs="-p phpdbg --coverage ./coverage.xml --coverage-src ./src"; fi
+
+after_script:
+    - >
+      if [ "$coverage" == "on" ]; then
+      wget https://github.com/satooshi/php-coveralls/releases/download/v1.0.1/coveralls.phar
+      && php coveralls.phar --verbose --config tests/.coveralls.yml
+      || true; fi
