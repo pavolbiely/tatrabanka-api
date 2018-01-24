@@ -96,6 +96,74 @@ class Accounts extends TatraBankaApi
 
 	/**
 	 * @param string
+	 * @return bool
+	 * @throws \TatraBankaApi\TatraBankaApiException
+	 */
+	public function requestAccessToken(string $code): bool
+	{
+		$response = $this->sendHttpRequest($this->getApiUrl() . '/auth/oauth/v2/token', 'POST', [
+			'grant_type' => 'authorization_code',
+			'code' => $code,
+			'redirect_uri' => $this->redirectUri,
+		], [
+			'Authorization: Basic ' . base64_encode($this->clientId . ':' . $this->clientSecret),
+		]);
+
+		$token = json_decode($response);
+		if (!$token) {
+			throw new TatraBankaApiException('Unable to read JSON response');
+		}
+
+		if (isset($token->error)) {
+			throw new TatraBankaApiException($token->error_description . ' (' . $token->error . ', http response is ' . $this->lastResponseCode . ')');
+		}
+
+		$this->setToken($token->access_token, $token->refresh_token, (int) $token->expires_in, $token->token_type, $token->scope);
+
+		return true;
+	}
+
+
+
+	/**
+	 * @param string
+	 * @return bool
+	 * @throws \TatraBankaApi\TatraBankaApiException
+	 */
+	public function refreshAccessToken(): bool
+	{
+		$oldToken = $this->getToken();
+
+		if (!$oldToken->refresh_token) {
+			throw new TatraBankaApiException('The refresh token is missing. Ask for a new access token with the requestAccessToken() method.');
+		}
+
+		$response = $this->sendHttpRequest($this->getApiUrl() . '/auth/oauth/v2/token', 'POST', [
+			'grant_type' => 'refresh_token',
+			'refresh_token' => $oldToken->refresh_token,
+			//'scope' => $this->scope, // if ommited it is treated as equal to the scope originally granted by the resource owner
+		], [
+			'Authorization: Basic ' . base64_encode($this->clientId . ':' . $this->clientSecret),
+		]);
+
+		$token = json_decode($response);
+		if (!$token) {
+			throw new TatraBankaApiException('Unable to read JSON response');
+		}
+
+		if (isset($token->error)) {
+			throw new TatraBankaApiException($token->error_description . ' (' . $token->error . ')', $this->lastResponseCode);
+		}
+
+		$this->setToken($token->access_token, $token->refresh_token, (int) $token->expires_in, $token->token_type, $token->scope);
+
+		return true;
+	}
+
+
+
+	/**
+	 * @param string
 	 * @throws \TatraBankaApi\TatraBankaApiException
 	 */
 	protected function validateParameterStatus(string $status): void

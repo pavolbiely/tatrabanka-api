@@ -56,6 +56,35 @@ class Payments extends TatraBankaApi
 
 
 	/**
+	 * @return bool
+	 * @throws \TatraBankaApi\TatraBankaApiException
+	 */
+	public function requestAccessToken(): bool
+	{
+		$response = $this->sendHttpRequest($this->getApiUrl() . '/auth/oauth/v2/token', 'POST', [
+			'grant_type' => 'client_credentials',
+			'scope' => 'PISP',
+		], [
+			'Authorization: Basic ' . base64_encode($this->clientId . ':' . $this->clientSecret),
+		]);
+
+		$token = json_decode($response);
+		if (!$token) {
+			throw new TatraBankaApiException('Unable to read JSON response');
+		}
+
+		if (isset($token->error)) {
+			throw new TatraBankaApiException($token->error_description . ' (' . $token->error . ', http response is ' . $this->lastResponseCode . ')');
+		}
+
+		$this->setToken($token->access_token, NULL, (int) $token->expires_in, $token->token_type, $token->scope);
+
+		return true;
+	}
+
+
+
+	/**
 	 * @param string
 	 * @throws \TatraBankaApi\TatraBankaApiException
 	 */
