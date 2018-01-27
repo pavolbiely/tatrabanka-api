@@ -37,8 +37,10 @@ Assert::true($tb->isSandbox());
 Assert::same('123', $tb->getClientId());
 Assert::same('456', $tb->getClientSecret());
 Assert::same('http://example.org', $tb->getRedirectUri());
-Assert::same('https://api.tatrabanka.sk/sandbox/auth/oauth/v2/authorize?client_id=123&response_type=code&redirect_uri=http%3A%2F%2Fexample.org&scope=AISP', $tb->getAuthorizationUrl());
 Assert::same($tempDir, $tb->getTempDir());
+
+$state = md5(uniqid('', true));
+Assert::same('https://api.tatrabanka.sk/sandbox/auth/oauth/v2/authorize?client_id=123&response_type=code&redirect_uri=http%3A%2F%2Fexample.org&scope=AISP&state=' . $state, $tb->getAuthorizationUrl(['state' => $state]));
 
 $tb->useSandbox(false);
 Assert::false($tb->isSandbox());

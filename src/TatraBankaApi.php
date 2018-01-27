@@ -150,16 +150,18 @@ abstract class TatraBankaApi
 
 
 	/**
+	 * @param array
 	 * @return string
 	 */
-	public function getAuthorizationUrl(): string
+	public function getAuthorizationUrl(array $params = []): string
 	{
-		return $this->getApiUrl() . '/auth/oauth/v2/authorize?' . http_build_query([
+		return $this->getApiUrl() . '/auth/oauth/v2/authorize?' . http_build_query(array_merge([
 				'client_id' => $this->clientId,
 				'response_type' => 'code',
 				'redirect_uri' => $this->redirectUri,
 				'scope' => $this->scope,
-			]);
+				'state' => md5(uniqid('', true)),
+			], $params));
 	}
 
 
@@ -363,9 +365,9 @@ abstract class TatraBankaApi
 	 * @param int
 	 * @throws \TatraBankaApi\TatraBankaApiException
 	 */
-	protected function validateParameterPageCount(int $page): void
+	protected function validateParameterPageCount(int $page = NULL): void
 	{
-		if (!($page >= 0 && $page <= 99999999)) {
+		if ($page !== NULL && !($page >= 0 && $page <= 99999999)) {
 			throw new TatraBankaApiException("The page parameter must be within the range of 0 to 99999999.");
 		}
 	}

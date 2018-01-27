@@ -13,7 +13,9 @@ Use composer to install this package.
 
 ## Example of usage
 
-Accounts API - OAuth2 authorization request
+### Accounts API
+
+Ask for the OAuth2 authorization
 ```php
 use TatraBankaApi\Accounts;
 
@@ -26,7 +28,7 @@ $tb->useSandbox(true);
 header('Location: ' . $tb->getAuthorizationUrl());
 ```
 
-Accounts API - OAuth2 access token request
+Exchange the OAuth2 authorization code for an access token
 ```php
 use TatraBankaApi\Accounts;
 use TatraBankaApi\TatraBankaApiException;
@@ -38,13 +40,13 @@ $redirectUri = '';
 try {
     $tb = new Accounts($clientId, $clientSecret, $redirectUri);
     $tb->useSandbox(true);
-    $tb->requestAccessToken($_GET['code']);
+    $tb->requestAccessToken($_GET['code']); // using authorization_code grand type
 } catch (TatraBankaApiException $e) {
     // ...
 }
 ```
 
-Accounts API - general usage
+General usage
 ```php
 use TatraBankaApi\Accounts;
 use TatraBankaApi\TatraBankaApiException;
@@ -72,7 +74,91 @@ try {
 }
 ```
 
-**WARNING!** Payments API is not working yet so no examples are provided.
+## Payments API
+Get the OAuth2 access token and prepare the payment instructions
+```php
+use TatraBankaApi\Accounts;
+use TatraBankaApi\TatraBankaApiException;
+
+$clientId = '';
+$clientSecret = '';
+$redirectUri = '';
+
+try {
+    $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb->useSandbox(true);
+    $tb->requestAccessToken(); // using client_credentials grand type
+    $response = $tb->postPaymentSba(md5(uniqid('', true)), $debtor, $creditor, $amount, new \DateTime('tomorrow'), new \DateTime('now'), '/VS123/SS456/KS0308', 'Test');
+    $authUrl = $tb->getAuthorizationUrl(['orderId' => $response->orderId]);
+    header('Location: ' . $authUrl);
+    exit;
+} catch (TatraBankaApiException $e) {
+    // ...
+}
+```
+
+Get the OAuth2 access token and prepare the payment instructions
+```php
+use TatraBankaApi\Accounts;
+use TatraBankaApi\TatraBankaApiException;
+
+$clientId = '';
+$clientSecret = '';
+$redirectUri = '';
+
+try {
+    $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb->useSandbox(true);
+    $tb->requestAccessToken(); // using client_credentials grand type
+    $response = $tb->postPaymentSba(md5(uniqid('', true)), $debtor, $creditor, $amount, new \DateTime('tomorrow'), new \DateTime('now'), '/VS123/SS456/KS0308', 'Test');
+    $authUrl = $tb->getAuthorizationUrl(['orderId' => $response->orderId]);
+    header('Location: ' . $authUrl);
+    exit;
+} catch (TatraBankaApiException $e) {
+    // ...
+}
+```
+
+Exchange the OAuth2 authorization code for an access token and submit the payment
+```php
+use TatraBankaApi\Accounts;
+use TatraBankaApi\TatraBankaApiException;
+
+$clientId = '';
+$clientSecret = '';
+$redirectUri = '';
+
+try {
+    $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb->useSandbox(true);
+    $tb->requestAccessToken($_GET['code']); // using authorization_code grand type
+    print_r($tb->postPaymentSubmission());
+
+} catch (TatraBankaApiException $e) {
+    // ...
+}
+```
+
+Get payment status
+```php
+use TatraBankaApi\Accounts;
+use TatraBankaApi\TatraBankaApiException;
+
+$clientId = '';
+$clientSecret = '';
+$redirectUri = '';
+$orderId = '';
+
+try {
+    $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb->useSandbox(true);
+    $tb->requestAccessToken(); // using client_credentials grand type
+    print_r($tb->getPaymentStatus(['orderId' => $orderId]));
+
+} catch (TatraBankaApiException $e) {
+    // ...
+}
+```
 
 ## How to run tests?
 Tests are build with [Nette Tester](https://tester.nette.org/). You can run it like this:
