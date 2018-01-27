@@ -77,7 +77,7 @@ try {
 ## Payments API
 Get the OAuth2 access token and prepare the payment instructions
 ```php
-use TatraBankaApi\Accounts;
+use TatraBankaApi\Payments;
 use TatraBankaApi\TatraBankaApiException;
 
 $clientId = '';
@@ -85,7 +85,7 @@ $clientSecret = '';
 $redirectUri = '';
 
 try {
-    $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb = new Payments($clientId, $clientSecret, $redirectUri);
     $tb->useSandbox(true);
     $tb->requestAccessToken(); // using client_credentials grand type
     $response = $tb->postPaymentSba(md5(uniqid('', true)), $debtor, $creditor, $amount, new \DateTime('tomorrow'), new \DateTime('now'), '/VS123/SS456/KS0308', 'Test');
@@ -99,7 +99,9 @@ try {
 
 Get the OAuth2 access token and prepare the payment instructions
 ```php
-use TatraBankaApi\Accounts;
+use TatraBankaApi\Payments;
+use TatraBankaApi\PaymentAmount;
+use TatraBankaApi\PaymentParticipant;
 use TatraBankaApi\TatraBankaApiException;
 
 $clientId = '';
@@ -107,9 +109,12 @@ $clientSecret = '';
 $redirectUri = '';
 
 try {
-    $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb = new Payments($clientId, $clientSecret, $redirectUri);
     $tb->useSandbox(true);
     $tb->requestAccessToken(); // using client_credentials grand type
+    $debtor = new PaymentParticipant('John Doe', 'SK0511000000002600000054');
+    $creditor = new PaymentParticipant('John Doe', 'DE89370400440532013000');
+    $amount = new PaymentAmount(100.15);
     $response = $tb->postPaymentSba(md5(uniqid('', true)), $debtor, $creditor, $amount, new \DateTime('tomorrow'), new \DateTime('now'), '/VS123/SS456/KS0308', 'Test');
     $authUrl = $tb->getAuthorizationUrl(['orderId' => $response->orderId]);
     header('Location: ' . $authUrl);
@@ -121,7 +126,7 @@ try {
 
 Exchange the OAuth2 authorization code for an access token and submit the payment
 ```php
-use TatraBankaApi\Accounts;
+use TatraBankaApi\Payments;
 use TatraBankaApi\TatraBankaApiException;
 
 $clientId = '';
@@ -129,7 +134,7 @@ $clientSecret = '';
 $redirectUri = '';
 
 try {
-    $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb = new Payments($clientId, $clientSecret, $redirectUri);
     $tb->useSandbox(true);
     $tb->requestAccessToken($_GET['code']); // using authorization_code grand type
     print_r($tb->postPaymentSubmission());
@@ -141,7 +146,7 @@ try {
 
 Get payment status
 ```php
-use TatraBankaApi\Accounts;
+use TatraBankaApi\Payments;
 use TatraBankaApi\TatraBankaApiException;
 
 $clientId = '';
@@ -150,7 +155,7 @@ $redirectUri = '';
 $orderId = '';
 
 try {
-    $tb = new Accounts($clientId, $clientSecret, $redirectUri);
+    $tb = new Payments($clientId, $clientSecret, $redirectUri);
     $tb->useSandbox(true);
     $tb->requestAccessToken(); // using client_credentials grand type
     print_r($tb->getPaymentStatus(['orderId' => $orderId]));
